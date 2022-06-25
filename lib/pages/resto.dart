@@ -3,8 +3,8 @@ import 'package:tubes_resto/util/restaurants.dart';
 import 'package:tubes_resto/widget/restaurant_item.dart';
 import '../util/const.dart';
 
-class Resto extends StatelessWidget {
-  const Resto({Key? key}) : super(key: key);
+class Restoran extends StatelessWidget {
+  const Restoran({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

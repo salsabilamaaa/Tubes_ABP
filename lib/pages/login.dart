@@ -3,6 +3,7 @@ import 'package:tubes_resto/pages/Profil.dart';
 import 'package:tubes_resto/pages/forgetpassword.dart';
 import 'package:tubes_resto/pages/SignUp.dart';
 import 'package:tubes_resto/pages/main_screen.dart';
+import 'package:http/http.dart' as http;
 
 String Pesan2 = "";
 
@@ -18,10 +19,6 @@ class Login extends StatelessWidget {
         fontFamily: 'Poppins',
       ),
       home: Scaffold(
-        // appBar: AppBar(
-        // title: const Text('Welcome'),
-        // centerTitle: true,
-        // ),
         body: const _LogInState(),
       ),
     );
@@ -137,8 +134,7 @@ class _Login extends State<_LogInState> {
                       Pesan2 = "Username dan Password Harus Diisi";
                     });
                   } else {
-                    Navigator.push((context),
-                        MaterialPageRoute(builder: (context) => MainScreen()));
+                    login();
                   }
                 },
               ),
@@ -166,5 +162,45 @@ class _Login extends State<_LogInState> {
         ),
       ),
     );
+  }
+
+  Future<void> login() async {
+    if (passwordController.text.isNotEmpty && nameController.text.isNotEmpty) {
+      print("Halo");
+      var response = await http.post(
+          Uri.parse("http://127.0.0.1:8000/api/login"),
+          body: ({
+            'username': nameController.text,
+            'password': passwordController.text
+          }));
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text(
+            "Login Success!",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.green,
+        ));
+
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => MainScreen()));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text(
+            "Username or password is wrong, please try again",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text(
+            "Please fill in all the blank form",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red));
+    }
   }
 }

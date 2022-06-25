@@ -10,21 +10,6 @@ import 'package:tubes_resto/pages/pesanan_Proses.dart';
 import 'package:http/http.dart' as http;
 import '../util/const.dart';
 
-Future<List<Resto>> fetchUser(http.Client client, String token) async {
-  final response = await client
-      .get(Uri.parse('http://10.0.2.2:8000/api/customer'), headers: {
-    'Accept': 'application/json',
-    'Authorization': 'Bearer ' + token
-  });
-  return compute(parseResto, response.body);
-}
-
-List<Resto> parseResto(String responseBody) {
-  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-
-  return parsed.map<Resto>((json) => Resto.fromJson(json)).toList();
-}
-
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
   @override
