@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tubes_resto/pages/categories.dart';
 import 'package:tubes_resto/pages/recommend.dart';
@@ -9,6 +12,22 @@ import 'package:tubes_resto/widget/category_item.dart';
 import 'package:tubes_resto/widget/recommend_item.dart';
 import 'package:tubes_resto/widget/restaurant_item.dart';
 import 'package:tubes_resto/widget/search_card.dart';
+import 'package:http/http.dart' as http;
+import 'package:tubes_resto/models/Resto.dart';
+
+Future<List<Resto>> fetchResto(http.Client client, String token) async {
+  final response =
+      await client.get(Uri.parse('http://10.0.2.2:8000/api/resto'), headers: {
+    'Accept': 'application/json',
+  });
+  return compute(parseResto, response.body);
+}
+
+List<Resto> parseResto(String responseBody) {
+  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
+
+  return parsed.map<Resto>((json) => Resto.fromJson(json)).toList();
+}
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
@@ -187,7 +206,7 @@ class Home extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) {
-                  return const Resto();
+                  return const Restoran();
                 },
               ),
             );

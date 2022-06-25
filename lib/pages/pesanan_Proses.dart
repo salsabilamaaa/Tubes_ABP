@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tubes_resto/pages/page_status.dart';
+import 'package:tubes_resto/widget/list_riwayat.dart';
 import 'package:flutter/material.dart';
-import 'package:tubes_resto/pages/page_riwayat.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:tubes_resto/models/Pesanan.dart';
@@ -21,25 +21,20 @@ class pesananPage extends StatefulWidget {
   State<pesananPage> createState() => _pesananPageState();
 }
 
-class HttpService {
-  //final url = 'http://192.168.0.111/flutter/getPesanan.php';
-  //final url = 'https://jsonplaceholder.typicode.com/todos';
+class getProses {
   final url = 'http://127.0.0.1:8000/api/transaksi_berlangsung';
 
   Future<List<Pesanan>> getPesanan() async{
     try{
       final response = await http.get(Uri.parse(url));
-      //print(jsonDecode(response.body));
     
       if(response.statusCode==200){
-        List<dynamic> data = jsonDecode(response.body);
-        List<Pesanan> pesanan = data.map((dynamic item) => Pesanan.fromJson(item),).toList();
+        Iterable it = jsonDecode(response.body);
+        List<Pesanan> pesanan = it.map((e) => Pesanan.fromJson(e)).toList();
         return pesanan;
       }else{
         throw 'Failed to load data';
       }
-        
-      
     }catch(e){
       throw(e.toString());
     }
@@ -50,11 +45,13 @@ class _pesananPageState extends State<pesananPage> {
   final green = Color.fromRGBO(64, 111, 60, 1);
 
   List<Pesanan> listPesanan = [];
-  HttpService data = HttpService();
-  
+
+  getProses data = getProses();
+
   getData() async{
     listPesanan = await data.getPesanan();
   }
+  
   void initState(){
     getData();
     super.initState();
@@ -120,7 +117,7 @@ class _pesananPageState extends State<pesananPage> {
                           onTap: () { 
                            Navigator.push(
                               context, 
-                              MaterialPageRoute(builder: (context) => status())
+                              MaterialPageRoute(builder: (context) => status(p: listPesanan[index]))
                             );
                           },
                           child: Row(
@@ -136,7 +133,7 @@ class _pesananPageState extends State<pesananPage> {
                                         borderRadius: BorderRadius.circular(8),
                                         shape: BoxShape.rectangle,
                                         image: const DecorationImage(
-                                          image: AssetImage('assets/logo.png'),
+                                          image: AssetImage('assets/images/logo2.png'),
                                           fit: BoxFit.cover,
                                         )
                                       ), 
@@ -151,7 +148,7 @@ class _pesananPageState extends State<pesananPage> {
                                         children: [
                                         Text(listPesanan[index].resto_id.toString(), style: pesananPage.namaRestoStyle,),
                                         //Text(listPesanan[index].date_reservasi, style: pesananPage.baseStyle,)
-                                        Text(listPesanan[index].date_reservasi+" "+listPesanan[index].time_reservasi, style: pesananPage.baseStyle,)
+                                        Text(listPesanan[index].date_reservasi+" pukul "+listPesanan[index].time_reservasi, style: pesananPage.baseStyle,)
                                         ] 
                                       ),
                                     ),
@@ -177,43 +174,7 @@ class _pesananPageState extends State<pesananPage> {
                 }
               },   
             ), //hal. tab 1
-            Container(
-              margin: EdgeInsets.all(10),
-              child: ListView(
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: Colors.grey))
-                      ),
-                    child: ListTile(
-                      onTap: () { 
-                        Navigator.push(
-                          context, 
-                          MaterialPageRoute(builder: (context) => riwayat())
-                        );
-                      },
-                      leading: SizedBox(
-                        height: 72,
-                        width: 72, 
-                        child: Container(
-                          color: green,
-                          
-                        ),
-                      ),
-                      title: Text('RM Padang', style: pesananPage.namaRestoStyle,),
-                      subtitle: Text('Hari ini, 15.30 pm'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(onPressed: (){}, icon: Icon(Icons.phone)),
-                        ]
-                        ),
-                    ),
-                  ),
-                ]
-              ),
-            ), //hal. tab 2
+            listRiwayat()//hal. tab 2
             ]
         ),
       ),
@@ -224,3 +185,5 @@ class _pesananPageState extends State<pesananPage> {
 //https://medium.com/codechai/flutter-boring-tab-to-cool-tab-bfcb1a93f8d0
 //https://skillplus.web.id/menggunakan-listtile/
 //https://www.kindacode.com/snippet/flutter-listtile-with-multiple-trailing-icon-buttons/
+//https://www.youtube.com/watch?v=FWk-rDw-6f8&t=516s
+//https://www.youtube.com/watch?v=rWIq0tbQbd0&t=264s

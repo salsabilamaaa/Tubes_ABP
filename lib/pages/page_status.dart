@@ -1,8 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:tubes_resto/models/Pesanan.dart';
+import 'package:tubes_resto/models/Resto.dart';
 
 class status extends StatefulWidget {
+  final Pesanan p;
+  const status({Key? key, required this.p}):super(key: key);
+
   static const TextStyle judulStyle =
       TextStyle(fontSize: 18, fontWeight: FontWeight.bold,);
   static const TextStyle midStyle =
@@ -14,10 +19,33 @@ class status extends StatefulWidget {
   State<status> createState() => _statusState();
 }
 
+
 class _statusState extends State<status> {
   final green = Color.fromRGBO(64, 111, 60, 1);
-
   final beige = Color.fromRGBO(255, 245, 231, 1);
+
+
+  @override
+  initState() {
+    super.initState();
+  }
+  getDetail() async{
+    final url = 'http://127.0.0.1:8000/api/detail/'+'${widget.p.resto_id}';
+    try{
+      final response = await http.get(Uri.parse(url));
+    
+      if(response.statusCode==200){
+        var x = jsonDecode(response.body);
+        Resto resto = Resto.fromJson(x);
+        //List<String> info = [resto.nameResto, resto.alamat];
+        return resto;
+      }else{
+        throw 'Failed to load data';
+      }
+    }catch(e){
+      throw(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,110 +58,85 @@ class _statusState extends State<status> {
             onPressed: () => Navigator.of(context).pop(),
           )
         ),
-        body: Container(
-          margin: EdgeInsets.all(20),
-          child: ListView(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 10) ,
-                height: 80, width: 80, 
-                child: Image(image: AssetImage('assets/logo.png'),), 
-              ),
-              Table(
-                
-                children: [
-                  TableRow(
-                    children: [
-                      TableCell(child: Text('Restoran', style: status.midStyle,),),
-                      TableCell(child: Text(': RM Padang', style: status.midStyle,),),
-                    ]
-                  ),
-                  TableRow(
-                    children: [
-                      TableCell(child: Text('Lokasi', style: status.midStyle,),),
-                      TableCell(child: Text(': Jl. Sukabirus 2', style: status.midStyle,),),
-                    ]
-                  ),
-                  TableRow(
-                    children: [
-                      TableCell(child: Text('Tanggal', style: status.midStyle,),),
-                      TableCell(child: Text(': 13 Juni 2022', style: status.midStyle,),),
-                    ]
-                  ),
-                  TableRow(
-                    children: [
-                      TableCell(child: Text('Waktu', style: status.midStyle,),),
-                      TableCell(child: Text(': 09.00 pm', style: status.midStyle,),),
-                    ]
-                  ),
-                  TableRow(
-                    children: [
-                      TableCell(child: Text('Meja', style: status.midStyle,),),
-                      TableCell(child: Text(': 12', style: status.midStyle,),),
-                    ]
-                  ),
-                  TableRow(
-                    children: [
-                      TableCell(child: Text('Harga', style: status.midStyle,),),
-                      TableCell(child: Text(': Rp 50.000', style: status.midStyle,),),
-                    ]
-                  )
-                ],
-              ),
-              Container(margin: EdgeInsets.symmetric(vertical: 20), alignment:Alignment.topLeft, child: Text('Pesanan', style: status.midStyle,),),
-              DataTable(
-                showBottomBorder: true,
-                horizontalMargin: 0,
-                columns: [
-                  DataColumn(label: Text('Menu', style: status.midStyle,)),
-                  DataColumn(label: Text('Jumlah', style: status.midStyle,)),
-                  DataColumn(label: Text('Harga Satuan', style: status.midStyle,)),
-                  DataColumn(label: Text('Harga', style: status.midStyle,)),
-                ], 
-                rows: [
-                  DataRow(
-                    cells: [
-                      DataCell(Text('Teh Manis', style: status.baseStyle,)),
-                      DataCell(Text('3', style: status.baseStyle,)),
-                      DataCell(Text('5.000', style: status.baseStyle,)),
-                      DataCell(Text('15.000', style: status.baseStyle,)),
-                    ]
-                  ),
-                  DataRow(
-                    cells: [
-                      DataCell(Text('Jus Jeruk', style: status.baseStyle,)),
-                      DataCell(Text('3', style: status.baseStyle,)),
-                      DataCell(Text('5.000', style: status.baseStyle,)),
-                      DataCell(Text('15.000', style: status.baseStyle,)),
-                    ]
-                  )
-                ]
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 20, bottom: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        body: FutureBuilder(
+          future: getDetail(),
+          builder: (context, snapshot){
+            if(snapshot.hasData){
+              Resto info = snapshot.data as Resto;
+              return Container(
+                margin: EdgeInsets.all(20),
+                child: ListView(
                   children: [
-                    Text('Total', style: status.midStyle,),
-                    Text('Rp 80.000', style: status.midStyle,),
-                  ],
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 10) ,
+                      height: 80, width: 80, 
+                      child: Image(image: AssetImage('assets/images/logo.png'),), 
+                    ),
+                    Table(
+                      children: [
+                        TableRow(
+                          children: [
+                            TableCell(child: Text('Restoran', style: status.midStyle,),),
+                            TableCell(child: Text(': '+info.nameResto, style: status.midStyle,),),
+                          ]
+                        ),
+                        TableRow(
+                          children: [
+                            TableCell(child: Text('Lokasi', style: status.midStyle,),),
+                            TableCell(child: Text(': '+info.alamat, style: status.midStyle,),),
+                          ]
+                        ),
+                        TableRow(
+                          children: [
+                            TableCell(child: Text('Tanggal', style: status.midStyle,),),
+                            TableCell(child: Text(': ${widget.p.date_reservasi}', style: status.midStyle,),),
+                          ]
+                        ),
+                        TableRow(
+                          children: [
+                            TableCell(child: Text('Waktu', style: status.midStyle,),),
+                            TableCell(child: Text(': ${widget.p.time_reservasi}', style: status.midStyle,),),
+                          ]
+                        ),
+                        TableRow(
+                          children: [
+                            TableCell(child: Text('Meja', style: status.midStyle,),),
+                            TableCell(child: Text(': ${widget.p.no_table}', style: status.midStyle,),),
+                          ]
+                        ),
+                        TableRow(
+                          children: [
+                            TableCell(child: Text('Harga', style: status.midStyle,),),
+                            TableCell(child: Text(': Rp 50.000', style: status.midStyle,),),
+                          ]
+                        )
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 20),
+                      alignment: Alignment.bottomCenter,
+                      child: ElevatedButton(
+                        onPressed: (){},
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.red,
+                        ),
+                        child: Center(
+                          child: Text("Batalkan Pesanan", style: status.midStyle,),
+                        ),
+                      ),
+                    )
+                  ]
                 ),
-              ),
-              //Container(margin: EdgeInsets.only(top: 10), alignment:Alignment.topLeft, child: Text('alamat', style: baseStyle,))
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
-                child: ElevatedButton(
-                  onPressed: (){},
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red,
-                  ),
-                  child: Center(
-                    child: Text("Batalkan Pesanan", style: status.midStyle,),
-                  ),
+              );
+            }else{
+              return Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
                 ),
-              )
-            ]
-          ),
+              );
+            }
+          }
+          
         ),
       )
     );
