@@ -134,7 +134,8 @@ class _Login extends State<_LogInState> {
                       Pesan2 = "Username dan Password Harus Diisi";
                     });
                   } else {
-                    login();
+                    Navigator.push((context),
+                        MaterialPageRoute(builder: (context) => MainScreen()));
                   }
                 },
               ),
